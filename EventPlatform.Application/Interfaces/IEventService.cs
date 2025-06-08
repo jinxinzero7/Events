@@ -9,7 +9,7 @@ namespace EventPlatform.Application.Interfaces
 {
     public interface IEventService
     {
-        Task<EventResponse> CreateEventAsync(EventCreateRequest request, Guid organizerId);
+        Task<EventResponse> CreateEventAsync(EventCreateRequest request);
         Task<EventResponse> GetEventByIdAsync(Guid id);
     }
 }

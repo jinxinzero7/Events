@@ -10,7 +10,7 @@ namespace EventPlatform.Application.Interfaces
 {
     public interface IUserService
     {
-        Task<User> RegisterAsync(RegisterRequest request);
-        Task<User> LoginAsync(LoginRequest request);
+        Task<UserResponse> RegisterAsync(RegisterRequest request);
+        Task<UserResponse> LoginAsync(LoginRequest request);
     }
 }

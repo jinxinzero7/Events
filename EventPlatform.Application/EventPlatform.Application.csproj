@@ -10,7 +10,6 @@
     <Folder Include="Features\" />
     <Folder Include="Common\" />
     <Folder Include="Repositories\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>
