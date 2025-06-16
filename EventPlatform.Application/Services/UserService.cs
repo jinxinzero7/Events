@@ -47,16 +47,22 @@ namespace EventPlatform.Application.Services
         }
         public async Task<UserResponse> LoginAsync(LoginRequest request)
         {
+            //проверка пустого req
             ArgumentNullException.ThrowIfNull(request, nameof(request));
+
+            //проверка существования user с email из request
             var existingUser = await _userRepository.GetUserByEmailAsync(request.Email);
-            if (existingUser != null) 
+            if (existingUser == null) 
             {
                 throw new InvalidOperationException($"User with email '{request.Email}' doesn't exist.");
             }
+
+            // ДОДЕЛАТЬ ХЕШИРОВАНИЕ
             if (existingUser.PasswordHash != request.Password)
             {
                 throw new InvalidOperationException("Wrong password.");
             }
+
             var userResponse = new UserResponse
             {
                 Id = existingUser.Id,

@@ -21,16 +21,35 @@ namespace EventPlatform.Application.Services
 
         public async Task<EventResponse> CreateEventAsync(EventCreateRequest request)
         {
+            //проверка на null
             ArgumentNullException.ThrowIfNull(request, nameof(request));
+
+            //проверка роли
+            var organizer = await _userRepository.GetUserByIdAsync(request.OrganizerId);
+            if (organizer?.AccountType != AccountType.Organizer)
+                throw new UnauthorizedAccessException("Only organizers can create events.");
+
+            // проверка типа мероприятия
+            //var eventTypeExists = await _eventRepository.EventTypeExists(request.EventTypeId);
+            //if (!eventTypeExists)
+                //throw new ArgumentException("Invalid event type.");
+
+            // проверка даты
+            if (request.EventTime < DateTime.UtcNow.AddHours(24))
+                throw new ArgumentException("Event time must be at least 24 hours from now.");
+
             var newEvent = new Event
             {
-                Id = Guid.NewGuid(),
+                Status = EventStatusType.Модерируется,
                 OrganizerId = request.OrganizerId,
+                EventTypeId = request.EventTypeId,
                 Title = request.Title,
                 Description = request.Description,
                 Address = request.Address,
                 EventTime = request.EventTime,
-                CreatedAt = DateTime.UtcNow
+                TicketPrice = request.TicketPrice,
+                TicketQuantity = request.TicketQuantity,
+                AvailableTickets = request.TicketQuantity
             };
 
             await _eventRepository.CreateEventAsync(newEvent);
@@ -42,7 +61,10 @@ namespace EventPlatform.Application.Services
                 Description = newEvent.Description,
                 Address = newEvent.Address,
                 EventTime = newEvent.EventTime,
-                CreatedAt = newEvent.CreatedAt
+                Status = newEvent.Status.ToString(),
+                TicketPrice = newEvent.TicketPrice,
+                AvailableTickets = newEvent.AvailableTickets,
+                TicketQuantity = newEvent.TicketQuantity
             };
 
             return eventResponse;
@@ -53,16 +75,19 @@ namespace EventPlatform.Application.Services
             var existingEvent = await _eventRepository.GetEventByIdAsync(id);
             if (existingEvent == null) 
             {
-                return null;
+                throw new ArgumentNullException("Events with this id do not exist");
             }
             var responseEvent = new EventResponse
             {
+                Id = existingEvent.Id,
                 OrganizerId = existingEvent.OrganizerId,
                 Title = existingEvent.Title,
                 Description = existingEvent.Description,
                 Address = existingEvent.Address,
                 EventTime = existingEvent.EventTime,
-                CreatedAt = existingEvent.CreatedAt
+                Status = existingEvent.Status.ToString(),
+                TicketPrice = existingEvent.TicketPrice,
+                AvailableTickets = existingEvent.AvailableTickets
             };
             return responseEvent;
         }

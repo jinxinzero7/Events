@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EventPlatform.Domain.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,9 @@ namespace EventPlatform.Application.DTO
         public string Description { get; set; }
         public string Address { get; set; }
         public DateTime EventTime { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public string Status { get; set; }
+        public decimal TicketPrice { get; set; }
+        public int AvailableTickets { get; set; }
+        public int TicketQuantity { get; set; }
     }
 }

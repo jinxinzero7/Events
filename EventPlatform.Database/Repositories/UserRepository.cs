@@ -27,6 +27,15 @@ namespace EventPlatform.Database.Repositories
             return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<User> GetUserByIdAsync(Guid id)
+        {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+            return await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+        }
+
         public async Task<User> CreateUserAsync(User user)
         {
             if (user == null)

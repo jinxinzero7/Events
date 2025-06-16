@@ -41,10 +41,36 @@ namespace EventPlatform.Database
                     .HasForeignKey(e => e.OrganizerId)
                     .OnDelete(DeleteBehavior.Cascade); // Cascade delete - при удалении организатора удаляются и его мероприятия
             });
+
+            // Конфигурация для Ticket
+            modelBuilder.Entity<Ticket>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                // Связь с мероприятием
+                entity.HasOne(t => t.Event)
+                    .WithMany(e => e.Tickets)
+                    .HasForeignKey(t => t.EventId);
+
+                // Связь с пользователем
+                entity.HasOne(t => t.User)
+                    .WithMany(u => u.Tickets)
+                    .HasForeignKey(t => t.UserId);
+            });
+
+            // Конфигурация для EventType
+            modelBuilder.Entity<EventType>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Title).IsRequired();
+            });
+
         }
 
         public DbSet<User> Users { get; set; }
         public DbSet<Event> Events { get; set; }
-        
+        public DbSet<Ticket> Tickets { get; set; }
+        public DbSet<EventType> EventTypes { get; set; }
+
     }
 }
