@@ -28,11 +28,11 @@ namespace EventPlatform.Database.Repositories
             return await _dbContext.Events.Where(e => e.OrganizerId == organizerId).ToListAsync();
         }
 
-        /*public async Task<bool> EventTypeExists(Guid eventTypeId)
+        public async Task<bool> EventTypeExists(Guid eventTypeId)
         {
-            
+            return await _dbContext.EventTypes.AnyAsync(et => et.Id == eventTypeId);
         }
-        */
+        
         public async Task<Event> CreateEventAsync(Event @event)
         {
             _dbContext.Events.Add(@event);

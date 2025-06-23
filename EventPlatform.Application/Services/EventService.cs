@@ -29,10 +29,10 @@ namespace EventPlatform.Application.Services
             if (organizer?.AccountType != AccountType.Organizer)
                 throw new UnauthorizedAccessException("Only organizers can create events.");
 
-            // проверка типа мероприятия
-            //var eventTypeExists = await _eventRepository.EventTypeExists(request.EventTypeId);
-            //if (!eventTypeExists)
-                //throw new ArgumentException("Invalid event type.");
+            //проверка типа мероприятия
+            var eventTypeExists = await _eventRepository.EventTypeExists(request.EventTypeId);
+            if (!eventTypeExists)
+                throw new ArgumentException("Invalid event type.");
 
             // проверка даты
             if (request.EventTime < DateTime.UtcNow.AddHours(24))

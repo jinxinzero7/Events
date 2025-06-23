@@ -29,7 +29,7 @@ namespace EventPlatform.Database.Repositories
 
         public async Task<User> GetUserByIdAsync(Guid id)
         {
-            if (id == null)
+            if (id == null || id == Guid.Empty)
             {
                 throw new ArgumentNullException(nameof(id));
             }

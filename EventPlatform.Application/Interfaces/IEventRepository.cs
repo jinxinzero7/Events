@@ -11,7 +11,7 @@ namespace EventPlatform.Application.Interfaces
     {
         Task<Event> GetEventByIdAsync(Guid id);
         Task<List<Event>> GetEventsByOrganizerIdAsync(Guid organizerId);
-        //Task<bool> EventTypeExists(Guid eventTypeId);
+        Task<bool> EventTypeExists(Guid eventTypeId);
         Task<Event> CreateEventAsync(Event @event);
 
     }
