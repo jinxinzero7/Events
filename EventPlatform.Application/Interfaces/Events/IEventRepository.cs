@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EventPlatform.Application.Interfaces
+namespace EventPlatform.Application.Interfaces.Events
 {
     public interface IEventRepository
     {
@@ -13,6 +13,7 @@ namespace EventPlatform.Application.Interfaces
         Task<List<Event>> GetEventsByOrganizerIdAsync(Guid organizerId);
         Task<bool> EventTypeExists(Guid eventTypeId);
         Task<Event> CreateEventAsync(Event @event);
+        Task DecrementAvailableTickets(Guid eventId, int count);
 
     }
 }

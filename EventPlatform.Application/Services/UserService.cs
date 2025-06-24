@@ -1,10 +1,10 @@
-﻿using EventPlatform.Application.DTO;
+﻿using BCrypt.Net;
+using EventPlatform.Application.DTO;
 using EventPlatform.Application.Interfaces;
+using EventPlatform.Application.Interfaces.Users;
 using EventPlatform.Domain.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace EventPlatform.Application.Services
@@ -12,6 +12,7 @@ namespace EventPlatform.Application.Services
     public class UserService : IUserService
     {
         IUserRepository _userRepository;
+        private const int BcryptWorkFactor = 12; // Оптимальный баланс безопасности и производительности
         public UserService(IUserRepository userRepository)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -27,13 +28,14 @@ namespace EventPlatform.Application.Services
             var newUser = new User
             {
                 Email = request.Email,
-                PasswordHash = request.PasswordHash, // TODO: Hash the password
+                PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(request.Password, BcryptWorkFactor), // TODO: Hash the password
                 Username = request.Username,
                 AccountType = request.AccountType
             };
 
             // Сохранение пользователя в базе данных
             await _userRepository.CreateUserAsync(newUser);
+
             var userResponse = new UserResponse
             {
                 Id = newUser.Id,
@@ -58,20 +60,18 @@ namespace EventPlatform.Application.Services
             }
 
             // ДОДЕЛАТЬ ХЕШИРОВАНИЕ
-            if (existingUser.PasswordHash != request.Password)
+            if (!BCrypt.Net.BCrypt.EnhancedVerify(request.Password, existingUser.PasswordHash))
             {
                 throw new InvalidOperationException("Wrong password.");
             }
 
-            var userResponse = new UserResponse
+            return new UserResponse
             {
                 Id = existingUser.Id,
                 Email = existingUser.Email,
                 Username = existingUser.Username,
                 AccountType = existingUser.AccountType
             };
-
-            return userResponse;
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using EventPlatform.Application.DTO;
-using EventPlatform.Application.Interfaces;
+using EventPlatform.Application.Interfaces.Users;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventPlatform.WebApi.Controllers

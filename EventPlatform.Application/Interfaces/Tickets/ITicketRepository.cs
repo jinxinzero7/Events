@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EventPlatform.Application.Interfaces
+namespace EventPlatform.Application.Interfaces.Tickets
 {
     public interface ITicketRepository
     {
-        Task<Ticket> CreateTicketAsync(Ticket ticket);
+        Task<Ticket> CreateTicketAsync(Ticket @ticket);
         Task<Ticket> GetTicketByIdAsync(Guid id);
         Task UpdateTicketStatusAsync(Guid ticketId, TicketStatus status);
     }

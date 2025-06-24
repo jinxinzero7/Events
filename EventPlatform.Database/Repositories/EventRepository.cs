@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EventPlatform.Application.Interfaces;
+using EventPlatform.Application.Interfaces.Events;
 using EventPlatform.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,12 +32,24 @@ namespace EventPlatform.Database.Repositories
         {
             return await _dbContext.EventTypes.AnyAsync(et => et.Id == eventTypeId);
         }
-        
+
         public async Task<Event> CreateEventAsync(Event @event)
         {
             _dbContext.Events.Add(@event);
             await _dbContext.SaveChangesAsync();
             return @event;
         }
+
+        public async Task DecrementAvailableTickets(Guid eventId, int count)
+        {
+            var @event = await _dbContext.Events.FindAsync(eventId);
+            if (@event != null)
+            {
+                @event.AvailableTickets -= count;
+                await _dbContext.SaveChangesAsync();
+            }
+        }
     }
 }
+
+

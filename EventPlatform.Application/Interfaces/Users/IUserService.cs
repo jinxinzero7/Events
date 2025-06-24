@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EventPlatform.Application.Interfaces
+namespace EventPlatform.Application.Interfaces.Users
 {
     public interface IUserService
     {
