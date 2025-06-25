@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EventPlatform.Application.DTO
+namespace EventPlatform.Application.DTO.Requests.Tickets
 {
     public class TicketPurchaseRequest
     {

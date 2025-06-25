@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,6 +17,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EventPlatform.Application\EventPlatform.Application.csproj" />
+    <ProjectReference Include="..\EventPlatform.Database\EventPlatform.Database.csproj" />
+    <ProjectReference Include="..\EventPlatform.JwtProvider\EventPlatform.Jwt.csproj" />
+    <ProjectReference Include="..\EventPlatform.NotificationProvider\EventPlatform.Notification.csproj" />
+    <ProjectReference Include="..\EventPlatform.Payments\EventPlatform.Payments.csproj" />
   </ItemGroup>
 
 </Project>

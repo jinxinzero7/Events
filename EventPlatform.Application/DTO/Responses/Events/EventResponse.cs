@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EventPlatform.Application.DTO
+namespace EventPlatform.Application.DTO.Responses.Events
 {
     public class EventResponse
     {
@@ -19,5 +19,6 @@ namespace EventPlatform.Application.DTO
         public decimal TicketPrice { get; set; }
         public int AvailableTickets { get; set; }
         public int TicketQuantity { get; set; }
+        public EventType EventType { get; set; }
     }
 }

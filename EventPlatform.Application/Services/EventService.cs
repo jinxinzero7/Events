@@ -1,4 +1,6 @@
-﻿using EventPlatform.Application.DTO;
+﻿using EventPlatform.Application.DTO.Requests.Events;
+using EventPlatform.Application.DTO.Responses.Events;
+using EventPlatform.Application.Interfaces;
 using EventPlatform.Application.Interfaces.Events;
 using EventPlatform.Application.Interfaces.Users;
 using EventPlatform.Domain.Models;
@@ -12,6 +14,7 @@ namespace EventPlatform.Application.Services
 {
     public class EventService : IEventService
     {
+        INotificationService _notificationService;
         IUserRepository _userRepository;
         IEventRepository _eventRepository;
         public EventService(IUserRepository userRepository, IEventRepository eventRepository)
@@ -31,7 +34,7 @@ namespace EventPlatform.Application.Services
                 throw new UnauthorizedAccessException("Only organizers can create events.");
 
             //проверка типа мероприятия
-            var eventTypeExists = await _eventRepository.EventTypeExists(request.EventTypeId);
+            var eventTypeExists = _eventRepository.EventTypeExists(request.EventType);
             if (!eventTypeExists)
                 throw new ArgumentException("Invalid event type.");
 
@@ -41,9 +44,9 @@ namespace EventPlatform.Application.Services
 
             var newEvent = new Event
             {
-                Status = EventStatusType.Модерируется,
+                Status = EventStatusType.Moderated,
                 OrganizerId = request.OrganizerId,
-                EventTypeId = request.EventTypeId,
+                EventType = request.EventType,
                 Title = request.Title,
                 Description = request.Description,
                 Address = request.Address,
@@ -78,7 +81,7 @@ namespace EventPlatform.Application.Services
             {
                 throw new ArgumentNullException("Events with this id do not exist");
             }
-            var responseEvent = new EventResponse
+            return new EventResponse
             {
                 Id = existingEvent.Id,
                 OrganizerId = existingEvent.OrganizerId,
@@ -90,7 +93,143 @@ namespace EventPlatform.Application.Services
                 TicketPrice = existingEvent.TicketPrice,
                 AvailableTickets = existingEvent.AvailableTickets
             };
-            return responseEvent;
+        }
+
+        public async Task<EventResponse> UpdateEventStatusAsync(Guid eventId, UpdateEventStatusRequest request)
+        {
+            var @event = await _eventRepository.GetEventByIdAsync(eventId);
+            if (@event == null)
+            {
+                throw new ArgumentException("Event not found.");
+            }
+            @event.Status = request.Status;
+
+            if (request.Status == EventStatusType.Rejected && !string.IsNullOrEmpty(request.Comment))
+            {
+                // Отправка уведомления организатору
+                var Organizer = await _userRepository.GetUserByIdAsync(@event.OrganizerId);
+                await _notificationService.SendEmailNotification(
+                    Organizer.Email,
+                    @event.Title,
+                    request.Comment
+                );
+            }
+
+            await _eventRepository.UpdateEventAsync(@event);
+
+            return new EventResponse
+            {
+                Id = @event.Id,
+                OrganizerId = @event.OrganizerId,
+                Title = @event.Title,
+                Description = @event.Description,
+                Address = @event.Address,
+                EventTime = @event.EventTime,
+                Status = @event.Status.ToString(),
+                TicketPrice = @event.TicketPrice,
+                AvailableTickets = @event.AvailableTickets,
+                TicketQuantity = @event.TicketQuantity,
+                EventType = @event.EventType,
+            };
+        }
+
+        public async Task<IEnumerable<EventResponse>> GetOrganizerEventsAsync(Guid organizerId)
+        {
+            var events = await _eventRepository.GetEventsByOrganizerIdAsync(organizerId);
+            return events.Select(e => new EventResponse
+            {
+                Id = e.Id,
+                OrganizerId = e.OrganizerId,
+                Title = e.Title,
+                Description = e.Description,
+                Address = e.Address,
+                EventTime = e.EventTime,
+                Status = e.Status.ToString(),
+                TicketPrice = e.TicketPrice,
+                AvailableTickets = e.AvailableTickets,
+                TicketQuantity = e.TicketQuantity,
+                EventType = e.EventType,
+            }).ToList();
+        }
+
+        public async Task<IEnumerable<EventResponse>> GetPendingModerationEventsAsync()
+        {
+            var events = await _eventRepository.GetPendingModerationEventsAsync();
+            return events.Select(e => new EventResponse
+            {
+                Id = e.Id,
+                OrganizerId = e.OrganizerId,
+                Title = e.Title,
+                Description = e.Description,
+                Address = e.Address,
+                EventTime = e.EventTime,
+                Status = e.Status.ToString(),
+                TicketPrice = e.TicketPrice,
+                AvailableTickets = e.AvailableTickets,
+                TicketQuantity = e.TicketQuantity,
+                EventType = e.EventType,
+            }).ToList();
+        }
+
+        public async Task<List<EventResponse>> SearchEventsAsync(DateTime? dateFrom, DateTime? dateTo, List<Guid> tagIds, List<Guid> moodIds, EventType? eventType)
+        {
+            var events = await _eventRepository.SearchEventsAsync(dateFrom, dateTo, tagIds, moodIds, eventType);
+
+            return events.Select(e => new EventResponse
+            {
+                Id = e.Id,
+                OrganizerId = e.OrganizerId,
+                Title = e.Title,
+                Description = e.Description,
+                Address = e.Address,
+                EventTime = e.EventTime,
+                Status = e.Status.ToString(),
+                TicketPrice = e.TicketPrice,
+                AvailableTickets = e.AvailableTickets,
+                TicketQuantity = e.TicketQuantity,
+                EventType = e.EventType
+            }).ToList();
+        }
+
+
+        public async Task<EventResponse> UpdateEventAsync(Guid eventId, Guid organizerId, EventUpdateRequest request)
+        {
+            var @event = await _eventRepository.GetEventByIdAsync(eventId);
+            if (@event == null)
+            {
+                throw new ArgumentException("Event not found");
+            }
+
+            if (@event.OrganizerId != organizerId)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to update this event.");
+            }
+
+            @event.Title = request.Title;
+            @event.Description = request.Description;
+            @event.Address = request.Address;
+            @event.EventTime = request.EventTime;
+            @event.TicketPrice = request.TicketPrice;
+            @event.TicketQuantity = request.TicketQuantity;
+            @event.AvailableTickets = request.TicketQuantity;
+            @event.EventType = request.EventType;
+
+            await _eventRepository.UpdateEventAsync(@event);
+
+            return new EventResponse
+            {
+                Id = @event.Id,
+                OrganizerId = @event.OrganizerId,
+                Title = @event.Title,
+                Description = @event.Description,
+                Address = @event.Address,
+                EventTime = @event.EventTime,
+                Status = @event.Status.ToString(),
+                TicketPrice = @event.TicketPrice,
+                AvailableTickets = @event.AvailableTickets,
+                TicketQuantity = @event.TicketQuantity,
+                EventType = @event.EventType,
+            };
         }
 
     }

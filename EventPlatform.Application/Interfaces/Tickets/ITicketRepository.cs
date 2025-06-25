@@ -12,5 +12,8 @@ namespace EventPlatform.Application.Interfaces.Tickets
         Task<Ticket> CreateTicketAsync(Ticket @ticket);
         Task<Ticket> GetTicketByIdAsync(Guid id);
         Task UpdateTicketStatusAsync(Guid ticketId, TicketStatus status);
+        Task<Ticket> GetByQrCodeAsync(string qrCode);
+        Task<IEnumerable<Ticket>> GetUserTicketsAsync(Guid userId);
+        Task<IEnumerable<Ticket>> GetEventTicketsAsync(Guid eventId);
     }
 }

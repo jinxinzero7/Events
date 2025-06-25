@@ -1,4 +1,5 @@
-﻿using EventPlatform.Application.DTO;
+﻿using EventPlatform.Application.DTO.Requests.Users;
+using EventPlatform.Application.DTO.Responses.Users;
 using EventPlatform.Domain.Models;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,12 @@ namespace EventPlatform.Application.Interfaces.Users
     {
         Task<UserResponse> RegisterAsync(RegisterRequest request);
         Task<UserResponse> LoginAsync(LoginRequest request);
+        Task<UserProfileResponse> GetUserProfileAsync(Guid userId);
+        Task<UserProfileResponse> UpdateUserProfileAsync(Guid userId, UpdateProfileRequest request);
+        Task ChangePasswordAsync(Guid userId, ChangePasswordRequest request);
+        Task<IEnumerable<UserResponse>> GetAllUsersAsync(); // Для админа
+        Task BlockUserAsync(Guid userId);
+        Task UnblockUserAsync(Guid userId);
+        Task<OrganizerPublicProfile> GetOrganizerPublicProfileAsync(Guid organizerId);
     }
 }

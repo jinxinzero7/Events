@@ -1,10 +1,12 @@
-﻿using EventPlatform.Application.DTO;
+﻿using EventPlatform.Application.DTO.Requests.Tickets;
+using EventPlatform.Application.DTO.Responses.Tickets;
 using EventPlatform.Application.Interfaces;
 using EventPlatform.Application.Interfaces.Events;
 using EventPlatform.Application.Interfaces.Tickets;
 using EventPlatform.Domain.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -16,15 +18,17 @@ namespace EventPlatform.Application.Services
     {
         IEventRepository _eventRepository;
         ITicketRepository _ticketRepository;
+        IPaymentService _paymentService;
 
         // Unit of Work pattern
         private readonly IUnitOfWork _unitOfWork;
 
-        public TicketService(IEventRepository eventRepository, ITicketRepository ticketRepository, IUnitOfWork unitOfWork)
+        public TicketService(IEventRepository eventRepository, ITicketRepository ticketRepository, IUnitOfWork unitOfWork, IPaymentService paymentService)
         {
-            _eventRepository = eventRepository ?? throw new ArgumentNullException(nameof(eventRepository));
-            _ticketRepository = ticketRepository ?? throw new ArgumentNullException(nameof(eventRepository));
+            _eventRepository = eventRepository;
+            _ticketRepository = ticketRepository;
             _unitOfWork = unitOfWork;
+            _paymentService = paymentService;
         }
 
         public async Task<TicketResponse> PurchaseTicketAsync(Guid EventId, Guid UserId)
@@ -32,7 +36,7 @@ namespace EventPlatform.Application.Services
             var @event = await _eventRepository.GetEventByIdAsync(EventId);
 
             //валидация на существование мероприятия по его Id
-            if (@event == null) 
+            if (@event == null)
             {
                 throw new ArgumentException("Event not found");
             }
@@ -98,5 +102,107 @@ namespace EventPlatform.Application.Services
 
             return Convert.ToBase64String(hash);
         }
+
+        public async Task<DTO.Responses.Tickets.ValidationResult> ValidateTicketAsync(string qrCodeData)
+        {
+            var ticket = await _ticketRepository.GetByQrCodeAsync(qrCodeData);
+            if (ticket == null) return new DTO.Responses.Tickets.ValidationResult { IsValid = false };
+
+            return new DTO.Responses.Tickets.ValidationResult
+            {
+                IsValid = ticket.Status == TicketStatus.Активный,
+                EventName = ticket.Event.Title,
+                UserName = ticket.User.Username,
+                Status = ticket.Status
+            };
+        }
+
+        public async Task<RefundResult> RequestRefundAsync(Guid ticketId, Guid userId)
+        {
+            var ticket = await _ticketRepository.GetTicketByIdAsync(ticketId);
+            if (ticket == null) throw new ArgumentException("Ticket not found");
+            if (ticket.UserId != userId) throw new UnauthorizedAccessException();
+
+            // Проверяем возможность возврата (не менее чем за 24 часа до мероприятия)
+            if (ticket.Event.EventTime < DateTime.UtcNow.AddHours(24))
+                throw new InvalidOperationException("Refund is not allowed less than 24 hours before the event");
+
+            await _ticketRepository.UpdateTicketStatusAsync(ticket.Id, TicketStatus.Возвращен);
+
+            // Возвращаем средства
+            bool refundSuccess = await _paymentService.ProcessRefund(new RefundRequest
+            {
+                TicketId = ticket.Id,
+            });
+
+            return new RefundResult
+            {
+                Success = refundSuccess,
+                NewStatus = ticket.Status
+            };
+        }
+
+        public async Task<IEnumerable<TicketResponse>> GetUserTicketsAsync(Guid userId)
+        {
+            var tickets = await _ticketRepository.GetUserTicketsAsync(userId);
+            return tickets.Select(ticket => new TicketResponse
+            {
+                Id = ticket.Id,
+                EventId = ticket.EventId,
+                EventTitle = ticket.Event.Title,
+                QrCodeData = ticket.QrCodeData,
+                PurchaseDate = ticket.PurchaseDate,
+            }).ToList();
+        }
+
+        public async Task<string> GetTicketQrCodeAsync(Guid userId, Guid ticketId)
+        {
+            var ticket = await _ticketRepository.GetTicketByIdAsync(ticketId);
+            if (ticket == null)
+            {
+                throw new ArgumentException("Ticket not found");
+            }
+
+            if (ticket.UserId != userId)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to view this ticket.");
+            }
+
+            return ticket.QrCodeData;
+        }
+
+        public async Task<RefundStatus> GetRefundStatusAsync(Guid ticketId, Guid userId)
+        {
+            var ticket = await _ticketRepository.GetTicketByIdAsync(ticketId);
+            if (ticket == null)
+            {
+                throw new ArgumentException("Ticket not found");
+            }
+
+            if (ticket.UserId != userId)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to view this ticket.");
+            }
+
+            return ticket.Status == TicketStatus.Возвращен ? RefundStatus.Approved : RefundStatus.Pending;
+        }
+
+        public async Task<IEnumerable<RefundNotification>> GetRefundNotificationsAsync(Guid organizerId)
+        {
+            var tickets = await _ticketRepository.GetEventTicketsAsync(organizerId);
+
+            var refundNotifications = tickets
+                .Where(t => t.Status == TicketStatus.Возвращен)
+                .Select(ticket => new RefundNotification
+                {
+                    TicketId = ticket.Id,
+                    EventTitle = ticket.Event.Title,
+                    RefundDate = DateTime.UtcNow,
+                })
+                .ToList();
+
+            return refundNotifications;
+        }
+
     }
 }

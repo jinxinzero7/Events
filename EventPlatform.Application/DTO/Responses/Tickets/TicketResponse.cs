@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EventPlatform.Application.DTO
+namespace EventPlatform.Application.DTO.Responses.Tickets
 {
     public class TicketResponse
     {
@@ -13,5 +13,6 @@ namespace EventPlatform.Application.DTO
         public string EventTitle { get; set; }
         public string QrCodeData { get; set; }
         public DateTime PurchaseDate { get; set; }
+        
     }
 }
