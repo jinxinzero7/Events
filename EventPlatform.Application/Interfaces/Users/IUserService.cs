@@ -16,7 +16,7 @@ namespace EventPlatform.Application.Interfaces.Users
         Task<UserProfileResponse> GetUserProfileAsync(Guid userId);
         Task<UserProfileResponse> UpdateUserProfileAsync(Guid userId, UpdateProfileRequest request);
         Task ChangePasswordAsync(Guid userId, ChangePasswordRequest request);
-        Task<IEnumerable<UserResponse>> GetAllUsersAsync(); // Для админа
+        Task<IEnumerable<AllUsersResponse>> GetAllUsersAsync(); // Для админа
         Task BlockUserAsync(Guid userId);
         Task UnblockUserAsync(Guid userId);
         Task<OrganizerPublicProfile> GetOrganizerPublicProfileAsync(Guid organizerId);

@@ -3,7 +3,8 @@
     public enum AccountType
     {
         Organizer,
-        Visitor
+        Visitor,
+        Admin
     }
     public class User
     {

@@ -10,6 +10,5 @@ namespace EventPlatform.Application.DTO.Responses.Tickets
     {
         public Guid TicketId { get; set; }
         public string EventTitle { get; set; }
-        public DateTime RefundDate { get; set; }
     }
 }

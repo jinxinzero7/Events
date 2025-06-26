@@ -145,15 +145,17 @@ namespace EventPlatform.Application.Services
             await _userRepository.UpdateUserAsync(user);
         }
 
-        public async Task<IEnumerable<UserResponse>> GetAllUsersAsync()
+        public async Task<IEnumerable<AllUsersResponse>> GetAllUsersAsync()
         {
             var users = await _userRepository.GetAllUsersAsync();
-            return users.Select(user => new UserResponse
+            return users.Select(user => new AllUsersResponse
             {
                 Id = user.Id,
                 Email = user.Email,
                 Username = user.Username,
-                AccountType = user.AccountType
+                AccountType = user.AccountType,
+                CreatedAt = user.CreatedAt,
+                IsBlocked = user.IsBlocked
             }).ToList();
         }
 

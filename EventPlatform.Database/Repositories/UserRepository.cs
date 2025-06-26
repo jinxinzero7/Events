@@ -29,7 +29,7 @@ namespace EventPlatform.Database.Repositories
 
         public async Task<User> GetUserByIdAsync(Guid id)
         {
-            return await _dbContext.Users.FindAsync(id);
+            return await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<User> CreateUserAsync(User user)

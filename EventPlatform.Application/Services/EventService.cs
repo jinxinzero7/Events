@@ -17,10 +17,11 @@ namespace EventPlatform.Application.Services
         INotificationService _notificationService;
         IUserRepository _userRepository;
         IEventRepository _eventRepository;
-        public EventService(IUserRepository userRepository, IEventRepository eventRepository)
+        public EventService(IUserRepository userRepository, IEventRepository eventRepository, INotificationService notificationService)
         {
-            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            _eventRepository = eventRepository ?? throw new ArgumentNullException(nameof(eventRepository));
+            _userRepository = userRepository;
+            _eventRepository = eventRepository;
+            _notificationService = notificationService;
         }
 
         public async Task<EventResponse> CreateEventAsync(EventCreateRequest request)
@@ -102,11 +103,12 @@ namespace EventPlatform.Application.Services
             {
                 throw new ArgumentException("Event not found.");
             }
+
             @event.Status = request.Status;
 
             if (request.Status == EventStatusType.Rejected && !string.IsNullOrEmpty(request.Comment))
             {
-                // Отправка уведомления организатору
+                // отправка уведомления организатору
                 var Organizer = await _userRepository.GetUserByIdAsync(@event.OrganizerId);
                 await _notificationService.SendEmailNotification(
                     Organizer.Email,

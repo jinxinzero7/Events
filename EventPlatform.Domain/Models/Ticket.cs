@@ -1,4 +1,7 @@
-﻿namespace EventPlatform.Domain.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace EventPlatform.Domain.Models
 {
     public enum TicketStatus
     {
@@ -8,7 +11,9 @@
     }
     public class Ticket
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Ключевая аннотация
+        public Guid Id { get; set; }
         public Guid EventId { get; set; }
         public Guid UserId { get; set; }
         public DateTime PurchaseDate { get; set; } = DateTime.UtcNow;

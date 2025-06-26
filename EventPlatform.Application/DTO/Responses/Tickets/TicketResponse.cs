@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EventPlatform.Domain.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ namespace EventPlatform.Application.DTO.Responses.Tickets
         public string EventTitle { get; set; }
         public string QrCodeData { get; set; }
         public DateTime PurchaseDate { get; set; }
+        public TicketStatus Status { get; set; }
         
     }
 }

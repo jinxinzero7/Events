@@ -22,13 +22,20 @@ namespace EventPlatform.Database.Repositories
         public async Task<Ticket> CreateTicketAsync(Ticket ticket)
         {
             _dbContext.Tickets.Add(ticket);
-            await _dbContext.SaveChangesAsync().ConfigureAwait(false);
+            await _dbContext.SaveChangesAsync();
             return ticket;
         }
 
-        public async Task<Ticket> GetTicketByIdAsync(Guid id)
+        public async Task<Ticket> GetTicketByIdAsync(Guid ticketId)
         {
-            return await _dbContext.Tickets.FirstOrDefaultAsync(e => e.Id == id).ConfigureAwait(false);
+            return await _dbContext.Tickets.FirstOrDefaultAsync(e => e.Id == ticketId).ConfigureAwait(false);
+        }
+
+        public async Task<Ticket> GetTicketByIdWithEventAsync(Guid ticketId)
+        {
+            return await _dbContext.Tickets
+                .Include(t => t.Event)  // добавляем загрузку события
+                .FirstOrDefaultAsync(t => t.Id == ticketId);
         }
 
         public async Task UpdateTicketStatusAsync(Guid ticketId, TicketStatus status)
@@ -45,6 +52,7 @@ namespace EventPlatform.Database.Repositories
         {
             return await _dbContext.Tickets
                 .Include(t => t.Event)
+                .Include(t => t.User)
                 .FirstOrDefaultAsync(t => t.QrCodeData == qrCode)
                 .ConfigureAwait(false);
         }
@@ -56,11 +64,12 @@ namespace EventPlatform.Database.Repositories
                 .ToListAsync().ConfigureAwait(false);
         }
 
-        public async Task<IEnumerable<Ticket>> GetEventTicketsAsync(Guid eventId)
+        public async Task<IEnumerable<Ticket>> GetEventTicketsAsync(Guid organizerId)
         {
             return await _dbContext.Tickets
-                .Where(t => t.EventId == eventId)
+                .Where(t => t.Event.OrganizerId == organizerId)
                 .Include(t => t.User)
+                .Include(t => t.Event)
                 .ToListAsync().ConfigureAwait(false);
         }
 

@@ -51,7 +51,6 @@ namespace EventPlatform.Application.Services
 
             var @ticket = new Ticket
             {
-                Id = Guid.NewGuid(),
                 EventId = EventId,
                 UserId = UserId,
                 PurchaseDate = DateTime.UtcNow,
@@ -75,9 +74,6 @@ namespace EventPlatform.Application.Services
                 await _unitOfWork.RollbackAsync();
                 throw new Exception("Purchase failed", ex);
             }
-
-            await _ticketRepository.CreateTicketAsync(@ticket);
-            await _eventRepository.DecrementAvailableTickets(EventId, 1);
 
             return new TicketResponse
             {
@@ -112,14 +108,14 @@ namespace EventPlatform.Application.Services
             {
                 IsValid = ticket.Status == TicketStatus.Активный,
                 EventName = ticket.Event.Title,
-                UserName = ticket.User.Username,
+                UserName = ticket.User?.Username,
                 Status = ticket.Status
             };
         }
 
         public async Task<RefundResult> RequestRefundAsync(Guid ticketId, Guid userId)
         {
-            var ticket = await _ticketRepository.GetTicketByIdAsync(ticketId);
+            var ticket = await _ticketRepository.GetTicketByIdWithEventAsync(ticketId);
             if (ticket == null) throw new ArgumentException("Ticket not found");
             if (ticket.UserId != userId) throw new UnauthorizedAccessException();
 
@@ -152,6 +148,7 @@ namespace EventPlatform.Application.Services
                 EventTitle = ticket.Event.Title,
                 QrCodeData = ticket.QrCodeData,
                 PurchaseDate = ticket.PurchaseDate,
+                Status = ticket.Status,
             }).ToList();
         }
 
@@ -197,7 +194,7 @@ namespace EventPlatform.Application.Services
                 {
                     TicketId = ticket.Id,
                     EventTitle = ticket.Event.Title,
-                    RefundDate = DateTime.UtcNow,
+                    
                 })
                 .ToList();
 

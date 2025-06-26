@@ -10,7 +10,8 @@ namespace EventPlatform.Application.Interfaces.Tickets
     public interface ITicketRepository
     {
         Task<Ticket> CreateTicketAsync(Ticket @ticket);
-        Task<Ticket> GetTicketByIdAsync(Guid id);
+        Task<Ticket> GetTicketByIdAsync(Guid ticketId);
+        Task<Ticket> GetTicketByIdWithEventAsync(Guid ticketId);
         Task UpdateTicketStatusAsync(Guid ticketId, TicketStatus status);
         Task<Ticket> GetByQrCodeAsync(string qrCode);
         Task<IEnumerable<Ticket>> GetUserTicketsAsync(Guid userId);
