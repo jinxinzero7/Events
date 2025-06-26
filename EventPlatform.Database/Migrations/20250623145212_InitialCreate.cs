@@ -33,7 +33,7 @@ namespace EventPlatform.Database.Migrations
                     Username = table.Column<string>(type: "text", nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),
                     AccountType = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETDATE()")
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
@@ -50,7 +50,7 @@ namespace EventPlatform.Database.Migrations
                     Description = table.Column<string>(type: "text", nullable: false),
                     EventTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Address = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETDATE()"),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     EventTypeId = table.Column<Guid>(type: "uuid", nullable: false),
                     TicketPrice = table.Column<decimal>(type: "numeric", nullable: false),

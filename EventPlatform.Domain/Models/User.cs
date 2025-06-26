@@ -17,6 +17,6 @@
         public DateTime CreatedAt { get; set; }
         public List<Ticket> Tickets { get; set; } = new List<Ticket>();
         public bool IsBlocked { get; set; } = false;
-        public string Description { get; set; } // Для организаторов
+        public string? Description { get; set; } = string.Empty; // Для организаторов
     }
 }

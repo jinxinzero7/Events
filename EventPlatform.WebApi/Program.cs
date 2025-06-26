@@ -27,6 +27,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 // Регистрация инфраструктурных сервисов
 builder.Services
     .AddJwtServices(builder.Configuration)
@@ -35,7 +37,7 @@ builder.Services
 
 // Регистрация DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("WebApiDatabase")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Настройка Swagger
 builder.Services.AddSwaggerGen(c =>

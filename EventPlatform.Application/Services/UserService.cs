@@ -40,7 +40,8 @@ namespace EventPlatform.Application.Services
                 Email = request.Email,
                 PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(request.Password, BcryptWorkFactor), // TODO: Hash the password
                 Username = request.Username,
-                AccountType = request.AccountType
+                AccountType = request.AccountType,
+                
             };
 
             // Сохранение пользователя в базе данных

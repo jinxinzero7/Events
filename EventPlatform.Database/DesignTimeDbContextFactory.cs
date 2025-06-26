@@ -20,7 +20,7 @@ namespace EventPlatform.Database
                 .Build();
 
             var options = new DbContextOptionsBuilder()
-                .UseNpgsql(configuration["ConnectionString:WebApiDatabase"], opt =>
+                .UseNpgsql(configuration["ConnectionString:DefaultConnection"], opt =>
                 {
                     opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 });
