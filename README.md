@@ -2,7 +2,7 @@
 
 **Веб-платформа для проведения и посещения событий с билетной системой, модерацией и интеграцией с картами**
 
-[![Статус](https://img.shields.io/badge/Статус-В%20разработке-orange)](https://github.com/jinxinzero7/Events)
+[![Статус](https://img.shields.io/badge/Статус-Бета%20тест-yellow)](https://github.com/jinxinzero7/Events)
 
 ## О проекте
 Платформа позволяет:
